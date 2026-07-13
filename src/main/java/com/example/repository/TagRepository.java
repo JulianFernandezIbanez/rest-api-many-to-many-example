@@ -8,6 +8,6 @@ import com.example.entities.Tag;
 
 public interface TagRepository extends JpaRepository<Tag, Long>  {
 
-	List<Tag> findTagByTutorialsId(Long tutorialId);
+	List<Tag> findTagsByTutorialsId(Long tutorialId);
 
 }

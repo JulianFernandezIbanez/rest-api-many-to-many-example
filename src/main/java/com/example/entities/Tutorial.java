@@ -47,6 +47,15 @@ public class Tutorial implements Serializable {
     private Set<Tag> tags = new HashSet<>();
 
     public void addTag(Tag tag) {
+
+        if (this.tags == null) {
+            this.tags = new HashSet<>();
+        }
+
+        if (tag.getTutorials() == null) {
+            tag.setTutorials(new HashSet<>());
+        }
+
         this.tags.add(tag);
         tag.getTutorials().add(this);
     }
