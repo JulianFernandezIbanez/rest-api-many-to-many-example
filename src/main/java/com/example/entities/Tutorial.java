@@ -44,17 +44,17 @@ public class Tutorial implements Serializable {
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "tutorial_tags",joinColumns = {@JoinColumn(name = "tutorial_id")},inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-    private Set<Tag> tags = new HashSet<>();
+    private final Set<Tag> tags = new HashSet<>();
 
     public void addTag(Tag tag) {
 
-        if (this.tags == null) {
+        /*if (this.tags == null) {
             this.tags = new HashSet<>();
         }
 
         if (tag.getTutorials() == null) {
             tag.setTutorials(new HashSet<>());
-        }
+        }*/
 
         this.tags.add(tag);
         tag.getTutorials().add(this);
