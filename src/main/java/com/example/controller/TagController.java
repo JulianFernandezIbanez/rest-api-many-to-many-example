@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import com.example.exception.ResourceNotFoundException;
 import com.example.repository.TagRepository;
 import com.example.repository.TutorialRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -80,6 +82,8 @@ public class TagController {
 	}
 
 	@PostMapping("/tutorials/{tutorialId}/tags")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Transactional
 	public ResponseEntity<Tag> addTag(@PathVariable Long tutorialId, @RequestBody Tag tagRequest) {
 
 		Tag tag = tutorialRepository.findById(tutorialId).map(tutorial -> {
@@ -95,8 +99,10 @@ public class TagController {
 			}
 
 			// add and create new Tag
-			tutorial.addTag(tagRequest);
-			return tagRepository.save(tagRequest);
+			Tag newTag = tagRepository.save(tagRequest);
+			tutorial.addTag(newTag);
+			tutorialRepository.save(tutorial);
+			return newTag;
 		})
 		.orElseThrow(() -> new ResourceNotFoundException("Not found Tutorial with id = " + tutorialId));
 
@@ -105,6 +111,8 @@ public class TagController {
 	}
 
 	@PutMapping("/tags/{id}")
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Tag> updateTag(@PathVariable long id, @RequestBody Tag tagRequest) {
 
 		Tag tag = tagRepository.findById(id)
@@ -117,6 +125,8 @@ public class TagController {
 	}
 
 	@DeleteMapping("/tutorials/{tutorialId}/tags/{tagId}")
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<HttpStatus> deleteTagFromTutorial(@PathVariable Long tutorialId, 
 	@PathVariable Long tagId) {
 
@@ -126,16 +136,18 @@ public class TagController {
 		tutorial.removeTag(tagId);
 		tutorialRepository.save(tutorial);
 
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT);
 
 	}
 
 	@DeleteMapping("/tags/{id}")
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<HttpStatus> deleteTag(@PathVariable long id) {
 
 		tagRepository.deleteById(id);
 
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT);
 
 	}
 

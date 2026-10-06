@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.example.entities.Tutorial;
 import com.example.exception.ResourceNotFoundException;
 import com.example.repository.TutorialRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -59,6 +61,7 @@ public class TutorialController {
 	}
 
 	@PostMapping("/tutorials")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 
 		Tutorial _tutorial = tutorialRepository.save(
@@ -73,6 +76,8 @@ public class TutorialController {
 	}
 
 	@PutMapping("/tutorials/{id}")
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
 		
 		Tutorial _tutorial = tutorialRepository.findById(id)
@@ -87,20 +92,27 @@ public class TutorialController {
 	}
 
 	@DeleteMapping("/tutorials/{id}")
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<HttpStatus> deleteTutorial(@PathVariable("id") long id) {
 		
 		tutorialRepository.deleteById(id);
 
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT, HttpStatus.NO_CONTENT);
 
 	}
 
 	@DeleteMapping("/tutorials")
-	public ResponseEntity<HttpStatus> deleteAllTutorials() {
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<Void> deleteAllTutorials() {
 
-		tutorialRepository.deleteAll();
+		tutorialRepository.findAll().forEach(tutorial -> tutorial.getTags().clear());
+		tutorialRepository.flush();
+		tutorialRepository.deleteAllInBatch();
+		tutorialRepository.flush();
 
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return ResponseEntity.noContent().build();
 
 	}
 
