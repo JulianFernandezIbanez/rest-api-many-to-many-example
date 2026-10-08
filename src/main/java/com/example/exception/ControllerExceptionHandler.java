@@ -85,4 +85,18 @@ public class ControllerExceptionHandler {
 				request.getDescription(false));
 	}
 
+	@ExceptionHandler(EmailNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ErrorMessage emailNotFoundException(
+		EmailNotFoundException ex,
+		WebRequest request
+	){
+		return new ErrorMessage(
+			HttpStatus.NOT_FOUND.value(),
+			new Date(),
+			"Bad Credentials: User not found",
+			request.getDescription(false));
+
+	}
+
 }

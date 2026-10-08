@@ -2,9 +2,9 @@ package com.example.security.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.example.exception.EmailNotFoundException;
 import com.example.security.entities.User;
 import com.example.security.repository.UserRepository;
 
@@ -20,9 +20,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     
     @Override
     @Transactional 
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws EmailNotFoundException {
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found whit email: "+ email));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new EmailNotFoundException("User not found whit email: "+ email));
 
 
 
